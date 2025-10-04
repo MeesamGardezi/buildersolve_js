@@ -1,0 +1,27 @@
+{
+  "name": "stillfeed-backend",
+  "version": "1.0.0",
+  "description": "StillFeed API - Mindful video platform backend",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "video",
+    "mindfulness",
+    "express",
+    "firebase"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.4.0",
+    "express-validator": "^7.1.0",
+    "firebase-admin": "^12.3.1"
+  }
+}
