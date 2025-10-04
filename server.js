@@ -1,36 +1,35 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-// import { helmetConfig, limiter } from './config/security.js';
-import { errorHandler } from './middleware/errorHandler.js';
-import { decryptRequest } from './middleware/encryption.js';
+import { errorHandler } from './src/middleware/errorHandler.js';
+// import { decryptRequest } from './src/middleware/encryption.js';
 
 // Initialize Firebase Admin
-import './config/firebase.js';
+import './src/config/firebase.js';
 
 // Import routes
-import postsRoutes from './routes/posts.js';
-import videosRoutes from './video/video.routes.js';
-import usersRoutes from './user/user.routes.js';
+// import postsRoutes from './src/routes/posts.js';
+import videosRoutes from './src/video/video.routes.js';
+import usersRoutes from './src/user/user.routes.js';
 
 // Initialize express app
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Security middleware
-app.use(helmetConfig);
+// app.use(helmetConfig);
 app.use(cors({
   origin: '*',
   credentials: true
 }));
-app.use(limiter);
+// app.use(limiter);
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Decrypt encrypted requests (optional - will pass through plain JSON)
-app.use(decryptRequest);
+// app.use(decryptRequest);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -42,7 +41,7 @@ app.get('/health', (req, res) => {
 });
 
 // API Routes
-app.use('/api/posts', postsRoutes);
+// app.use('/api/posts', postsRoutes);
 app.use('/api/videos', videosRoutes);
 app.use('/api/users', usersRoutes);
 
