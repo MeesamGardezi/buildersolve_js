@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "StillFeed API - Mindful video platform backend",
   "main": "server.js",
-  "type": "module",
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js"

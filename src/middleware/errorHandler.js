@@ -1,25 +1,48 @@
-import { AppError } from '../utils/errors.js';
-import { errorResponse } from '../utils/responses.js';
+const AppError = require('../utils/errors').AppError;
 
-export const errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res, next) => {
+  // Handle custom AppError instances
   if (err instanceof AppError) {
-    return errorResponse(res, err.message, err.statusCode);
+    return res.status(err.statusCode).json({
+      success: false,
+      error: { message: err.message }
+    });
   }
 
+  // Handle validation errors
   if (err.name === 'ValidationError') {
-    return errorResponse(res, 'Validation failed', 400, err.errors);
+    return res.status(400).json({
+      success: false,
+      error: { 
+        message: 'Validation failed',
+        details: err.errors 
+      }
+    });
   }
 
+  // Log unexpected errors
   console.error('Unexpected error:', err);
 
+  // Generic error response
   const statusCode = err.statusCode || 500;
   const message = process.env.NODE_ENV === 'production' 
     ? 'Internal server error' 
     : err.message;
 
-  return errorResponse(res, message, statusCode);
+  return res.status(statusCode).json({
+    success: false,
+    error: { message }
+  });
 };
 
-export const notFoundHandler = (req, res) => {
-  return errorResponse(res, `Route ${req.originalUrl} not found`, 404);
+const notFoundHandler = (req, res) => {
+  return res.status(404).json({
+    success: false,
+    error: { message: `Route ${req.originalUrl} not found` }
+  });
+};
+
+module.exports = {
+  errorHandler,
+  notFoundHandler
 };

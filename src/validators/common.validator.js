@@ -1,7 +1,6 @@
-import { param, query, validationResult } from 'express-validator';
-import { errorResponse } from '../utils/responses.js';
+const { param, query, validationResult } = require('express-validator');
 
-export const validateUserId = [
+const validateUserId = [
   param('userId')
     .trim()
     .notEmpty()
@@ -12,13 +11,19 @@ export const validateUserId = [
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return errorResponse(res, 'Validation failed', 400, errors.array());
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Validation failed',
+          details: errors.array()
+        }
+      });
     }
     next();
   }
 ];
 
-export const validateVideoId = [
+const validateVideoId = [
   param('videoId')
     .trim()
     .notEmpty()
@@ -29,13 +34,19 @@ export const validateVideoId = [
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return errorResponse(res, 'Validation failed', 400, errors.array());
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Validation failed',
+          details: errors.array()
+        }
+      });
     }
     next();
   }
 ];
 
-export const validatePagination = [
+const validatePagination = [
   query('limit')
     .optional()
     .isInt({ min: 1, max: 50 })
@@ -49,8 +60,49 @@ export const validatePagination = [
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return errorResponse(res, 'Validation failed', 400, errors.array());
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Validation failed',
+          details: errors.array()
+        }
+      });
     }
     next();
   }
 ];
+
+const validatePage = [
+  query('page')
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage('Page must be a positive integer')
+    .toInt(),
+  
+  query('limit')
+    .optional()
+    .isInt({ min: 1, max: 50 })
+    .withMessage('Limit must be between 1 and 50')
+    .toInt(),
+
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Validation failed',
+          details: errors.array()
+        }
+      });
+    }
+    next();
+  }
+];
+
+module.exports = {
+  validateUserId,
+  validateVideoId,
+  validatePagination,
+  validatePage
+};

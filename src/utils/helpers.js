@@ -1,6 +1,6 @@
-import { auth } from '../config/firebase.js';
+const { auth } = require('../config/firebase');
 
-export const verifyFirebaseToken = async (token) => {
+const verifyFirebaseToken = async (token) => {
   try {
     const decodedToken = await auth.verifyIdToken(token);
     return decodedToken;
@@ -9,27 +9,36 @@ export const verifyFirebaseToken = async (token) => {
   }
 };
 
-export const generateUniqueId = () => {
+const generateUniqueId = () => {
   return `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 };
 
-export const sanitizeString = (str) => {
+const sanitizeString = (str) => {
   if (!str) return '';
   return str.trim().replace(/[<>]/g, '');
 };
 
-export const isValidCategory = (category) => {
+const isValidCategory = (category) => {
   const validCategories = ['nature', 'philosophy', 'skills', 'art', 'science', 'other'];
-  return validCategories.includes(category);
+  return validCategories.includes(category.toLowerCase());
 };
 
-export const calculateCompletionRate = (completions, totalViews) => {
+const calculateCompletionRate = (completions, totalViews) => {
   if (totalViews === 0) return 0;
   return (completions / totalViews) * 100;
 };
 
-export const isAllCaps = (str) => {
+const isAllCaps = (str) => {
   const letters = str.replace(/[^a-zA-Z]/g, '');
   if (letters.length === 0) return false;
   return letters === letters.toUpperCase() && letters.length > 3;
+};
+
+module.exports = {
+  verifyFirebaseToken,
+  generateUniqueId,
+  sanitizeString,
+  isValidCategory,
+  calculateCompletionRate,
+  isAllCaps
 };

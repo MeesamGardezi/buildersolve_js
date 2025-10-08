@@ -1,8 +1,8 @@
-import { db, auth } from '../config/firebase.js';
-import { successResponse, errorResponse } from '../utils/responses.js';
-import { ConflictError, NotFoundError } from '../utils/errors.js';
+const { db, auth } = require('../config/firebase');
+const { successResponse } = require('../utils/responses');
+const { ConflictError, NotFoundError } = require('../utils/errors');
 
-export const register = async (req, res, next) => {
+const register = async (req, res, next) => {
   try {
     const { displayName, email, bio } = req.body;
     const uid = req.user.uid;
@@ -36,7 +36,7 @@ export const register = async (req, res, next) => {
   }
 };
 
-export const getProfile = async (req, res, next) => {
+const getProfile = async (req, res, next) => {
   try {
     const uid = req.user.uid;
 
@@ -54,7 +54,7 @@ export const getProfile = async (req, res, next) => {
   }
 };
 
-export const updateProfile = async (req, res, next) => {
+const updateProfile = async (req, res, next) => {
   try {
     const uid = req.user.uid;
     const { displayName, bio, profilePicUrl } = req.body;
@@ -82,16 +82,25 @@ export const updateProfile = async (req, res, next) => {
   }
 };
 
-export const deleteAccount = async (req, res, next) => {
+const deleteAccount = async (req, res, next) => {
   try {
     const uid = req.user.uid;
 
+    // Delete user document from Firestore
     await db.collection('users').doc(uid).delete();
 
+    // Delete user from Firebase Auth
     await auth.deleteUser(uid);
 
     return successResponse(res, null, 'Account deleted successfully');
   } catch (error) {
     next(error);
   }
+};
+
+module.exports = {
+  register,
+  getProfile,
+  updateProfile,
+  deleteAccount
 };

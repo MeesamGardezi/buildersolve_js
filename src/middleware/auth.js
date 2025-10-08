@@ -1,4 +1,4 @@
-const admin = require('../config/firebase');
+const { auth } = require('../config/firebase');
 
 /**
  * Authentication Middleware
@@ -27,7 +27,7 @@ exports.authenticate = async (req, res, next) => {
     }
 
     // Verify the Firebase ID token
-    const decodedToken = await admin.auth().verifyIdToken(token);
+    const decodedToken = await auth.verifyIdToken(token);
 
     // Attach user info to request
     req.user = {
@@ -79,7 +79,7 @@ exports.optionalAuth = async (req, res, next) => {
       return next();
     }
 
-    const decodedToken = await admin.auth().verifyIdToken(token);
+    const decodedToken = await auth.verifyIdToken(token);
 
     req.user = {
       uid: decodedToken.uid,

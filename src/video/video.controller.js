@@ -1,5 +1,5 @@
 const VideoModel = require('./video.model');
-const admin = require('../config/firebase');
+const { admin } = require('../config/firebase');
 const { v4: uuidv4 } = require('uuid');
 
 /**
@@ -331,9 +331,6 @@ exports.trackCompletion = async (req, res, next) => {
 
     await VideoModel.incrementCompletionCount(videoId);
 
-    // TODO: Store watch history if needed
-    // await WatchHistory.create({ userId: req.user.uid, videoId, watchDuration });
-
     res.status(200).json({
       success: true,
       data: { message: 'Completion tracked' },
@@ -353,8 +350,6 @@ exports.trackSkip = async (req, res, next) => {
     const { watchDuration } = req.body;
 
     await VideoModel.incrementSkipCount(videoId);
-
-    // TODO: Store watch history if needed
 
     res.status(200).json({
       success: true,

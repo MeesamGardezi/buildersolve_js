@@ -1,7 +1,6 @@
-import { body, validationResult } from 'express-validator';
-import { errorResponse } from '../utils/responses.js';
+const { body, validationResult } = require('express-validator');
 
-export const validateRegistration = [
+const validateRegistration = [
   body('displayName')
     .trim()
     .isLength({ min: 2, max: 30 })
@@ -23,13 +22,19 @@ export const validateRegistration = [
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return errorResponse(res, 'Validation failed', 400, errors.array());
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Validation failed',
+          details: errors.array()
+        }
+      });
     }
     next();
   }
 ];
 
-export const validateProfileUpdate = [
+const validateProfileUpdate = [
   body('displayName')
     .optional()
     .trim()
@@ -43,12 +48,29 @@ export const validateProfileUpdate = [
     .trim()
     .isLength({ max: 150 })
     .withMessage('Bio must not exceed 150 characters'),
+  
+  body('profilePicUrl')
+    .optional()
+    .trim()
+    .isURL()
+    .withMessage('Invalid profile picture URL'),
 
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return errorResponse(res, 'Validation failed', 400, errors.array());
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Validation failed',
+          details: errors.array()
+        }
+      });
     }
     next();
   }
 ];
+
+module.exports = {
+  validateRegistration,
+  validateProfileUpdate
+};

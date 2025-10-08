@@ -1,8 +1,7 @@
-import { db } from '../config/firebase.js';
-import { AuthorizationError } from '../utils/errors.js';
-import { errorResponse } from '../utils/responses.js';
+const { db } = require('../config/firebase');
+const { AuthorizationError } = require('../utils/errors');
 
-export const requireAdmin = async (req, res, next) => {
+const requireAdmin = async (req, res, next) => {
   try {
     if (!req.user || !req.user.uid) {
       throw new AuthorizationError('Authentication required');
@@ -28,8 +27,18 @@ export const requireAdmin = async (req, res, next) => {
     next();
   } catch (error) {
     if (error instanceof AuthorizationError) {
-      return errorResponse(res, error.message, error.statusCode);
+      return res.status(error.statusCode).json({
+        success: false,
+        error: { message: error.message }
+      });
     }
-    return errorResponse(res, 'Authorization failed', 403);
+    return res.status(403).json({
+      success: false,
+      error: { message: 'Authorization failed' }
+    });
   }
+};
+
+module.exports = {
+  requireAdmin
 };

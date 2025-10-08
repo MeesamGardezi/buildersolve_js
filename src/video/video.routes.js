@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { authenticate } = require('../middleware/auth');
+const { authenticate, optionalAuth } = require('../middleware/auth');
 const {
   getUploadUrl,
   createVideo,
@@ -8,13 +8,9 @@ const {
   getFollowingFeed,
   getCategoryFeed,
   getVideoById,
-  getUserVideos,
   trackView,
   trackCompletion,
   trackSkip,
-  saveVideo,
-  unsaveVideo,
-  getSavedVideos,
   updateVideo,
   deleteVideo,
 } = require('./video.controller');
@@ -24,16 +20,16 @@ const {
  * Base path: /api/videos
  */
 
-// Public routes (no auth required)
-router.get('/feed', getFeed); // Can be accessed without auth
-router.get('/category/:category', getCategoryFeed); // Can be accessed without auth
-router.get('/:videoId', getVideoById); // Can be accessed without auth
+// Public routes (optional auth)
+router.get('/feed', optionalAuth, getFeed);
+router.get('/category/:category', optionalAuth, getCategoryFeed);
+router.get('/:videoId', optionalAuth, getVideoById);
+router.post('/:videoId/view', trackView);
 
 // Protected routes (auth required)
 router.post('/upload-url', authenticate, getUploadUrl);
 router.post('/', authenticate, createVideo);
-router.get('/following', authenticate, getFollowingFeed);
-router.post('/:videoId/view', trackView); // Optional auth
+router.get('/following/feed', authenticate, getFollowingFeed);
 router.post('/:videoId/complete', authenticate, trackCompletion);
 router.post('/:videoId/skip', authenticate, trackSkip);
 router.put('/:videoId', authenticate, updateVideo);

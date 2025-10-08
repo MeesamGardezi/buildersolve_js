@@ -1,10 +1,6 @@
-import admin from 'firebase-admin';
-import { readFileSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const admin = require('firebase-admin');
+const fs = require('fs');
+const path = require('path');
 
 /**
  * Firebase Admin SDK Initialization
@@ -15,9 +11,9 @@ if (!admin.apps.length) {
   try {
     // Path to service account key
     const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH || 
-      join(__dirname, 'serviceAccountKey.json');
+      path.join(__dirname, 'serviceAccountKey.json');
 
-    const serviceAccount = JSON.parse(readFileSync(serviceAccountPath, 'utf8'));
+    const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
 
     // Initialize Firebase Admin
     admin.initializeApp({
@@ -33,4 +29,14 @@ if (!admin.apps.length) {
   }
 }
 
-export default admin;
+// Export Firebase services
+const db = admin.firestore();
+const auth = admin.auth();
+const storage = admin.storage();
+
+module.exports = {
+  admin,
+  db,
+  auth,
+  storage
+};
