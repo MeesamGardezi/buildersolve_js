@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const { authenticate, optionalAuth } = require('../middleware/auth');
 const {
-  getUploadUrl,
   createVideo,
   getFeed,
   getFollowingFeed,
@@ -27,7 +26,7 @@ router.get('/:videoId', optionalAuth, getVideoById);
 router.post('/:videoId/view', trackView);
 
 // Protected routes (auth required)
-router.post('/upload-url', authenticate, getUploadUrl);
+// Upload URL route REMOVED - frontend uploads directly to Firebase Storage
 router.post('/', authenticate, createVideo);
 router.get('/following/feed', authenticate, getFollowingFeed);
 router.post('/:videoId/complete', authenticate, trackCompletion);

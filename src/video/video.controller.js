@@ -1,6 +1,5 @@
 const VideoModel = require('./video.model');
 const { admin } = require('../config/firebase');
-const { v4: uuidv4 } = require('uuid');
 
 /**
  * Video Controllers
@@ -8,88 +7,26 @@ const { v4: uuidv4 } = require('uuid');
  */
 
 /**
- * Get signed upload URL for video
- * POST /api/videos/upload-url
- */
-exports.getUploadUrl = async (req, res, next) => {
-  try {
-    const { fileName, fileSize, mimeType } = req.body;
-
-    if (!fileName || !fileSize || !mimeType) {
-      return res.status(400).json({
-        success: false,
-        error: { message: 'fileName, fileSize, and mimeType are required' },
-      });
-    }
-
-    // Validate file size (max 500MB)
-    const maxSize = 500 * 1024 * 1024;
-    if (fileSize > maxSize) {
-      return res.status(400).json({
-        success: false,
-        error: { message: 'File size exceeds 500MB limit' },
-      });
-    }
-
-    // Validate mime type
-    const allowedTypes = ['video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/webm'];
-    if (!allowedTypes.includes(mimeType)) {
-      return res.status(400).json({
-        success: false,
-        error: { message: 'Invalid video format. Allowed: MP4, MOV, AVI, WebM' },
-      });
-    }
-
-    const bucket = admin.storage().bucket();
-    const videoId = uuidv4();
-    const fileExtension = fileName.split('.').pop();
-    const storagePath = `videos/${req.user.uid}/${videoId}.${fileExtension}`;
-
-    const file = bucket.file(storagePath);
-
-    // Generate signed URL for upload (expires in 1 hour)
-    const [uploadUrl] = await file.getSignedUrl({
-      version: 'v4',
-      action: 'write',
-      expires: Date.now() + 60 * 60 * 1000, // 1 hour
-      contentType: mimeType,
-    });
-
-    res.status(200).json({
-      success: true,
-      data: {
-        uploadUrl,
-        videoId,
-        storagePath,
-        expiresIn: 3600, // seconds
-      },
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * Create video metadata after upload
+ * Create video metadata (video already uploaded to storage by client)
  * POST /api/videos
  */
 exports.createVideo = async (req, res, next) => {
   try {
     const {
-      videoId,
       title,
       description,
       category,
+      videoUrl,
       storagePath,
       thumbnailUrl,
       duration,
     } = req.body;
 
     // Validation
-    if (!videoId || !title || !category || !storagePath) {
+    if (!title || !category || !videoUrl || !storagePath) {
       return res.status(400).json({
         success: false,
-        error: { message: 'videoId, title, category, and storagePath are required' },
+        error: { message: 'title, category, videoUrl, and storagePath are required' },
       });
     }
 
@@ -100,17 +37,6 @@ exports.createVideo = async (req, res, next) => {
         error: { message: 'Invalid category' },
       });
     }
-
-    // Get video URL from storage
-    const bucket = admin.storage().bucket();
-    const file = bucket.file(storagePath);
-
-    // Get signed URL for video access (expires in 7 days)
-    const [videoUrl] = await file.getSignedUrl({
-      version: 'v4',
-      action: 'read',
-      expires: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
 
     // Get user info
     const userDoc = await admin.firestore().collection('users').doc(req.user.uid).get();
@@ -145,6 +71,7 @@ exports.createVideo = async (req, res, next) => {
       data: video,
     });
   } catch (error) {
+    console.error('Create video error:', error);
     next(error);
   }
 };
